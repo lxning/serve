@@ -52,7 +52,9 @@ class LanguageTranslationHandler(BaseHandler):
         textInput = []
         for row in data:
             text = row.get("data") or row.get("body")
+            logger.info("Model to translate: %s", text)
             decoded_text = text.decode('utf-8')
+            logger.info("Model to translate decoded_text: %s", decoded_text)
             textInput.append(decoded_text)
         return textInput
 
