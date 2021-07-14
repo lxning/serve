@@ -80,6 +80,7 @@ class TorchModelServiceWorker(object):
             batch_size = None
             if "batchSize" in load_model_request:
                 batch_size = int(load_model_request["batchSize"])
+            logger.info(f'batchSize: {batch_size}')
 
             gpu = None
             if "gpu" in load_model_request:
