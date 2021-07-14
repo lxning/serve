@@ -196,7 +196,7 @@ class BaseHandler(abc.ABC):
 	
         logger.info("preprocess data: %s", data)
         data_preprocess = self.preprocess(data)
-	logger.info("preprocessed data: %s", data_preprocess)
+        logger.info("preprocessed data: %s", data_preprocess)
 
         if not self._is_explain():
             output = self.inference(data_preprocess)
