@@ -254,7 +254,7 @@ public class Model {
         }
 
         if (!jobsRepo.isEmpty()) {
-            logger.error("The jobs repo provided contains stale jobs. Clear them!!");
+            logger.info("The jobs repo provided contains stale inference jobs. Skip management job!!");
             return false;
         }
 

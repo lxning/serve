@@ -21,6 +21,7 @@ public class ContinuousBatching extends BatchAggregator {
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException {
+        logger.info("call getRequest, jobs empty:{}", jobs.isEmpty());
         int batchQuota = model.getBatchSize() - jobs.size();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
