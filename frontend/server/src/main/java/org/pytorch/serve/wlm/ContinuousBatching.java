@@ -67,6 +67,7 @@ public class ContinuousBatching extends BatchAggregator {
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
+                jobs.clear();
                 return true;
             }
             for (Predictions prediction : message.getPredictions()) {
