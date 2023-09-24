@@ -254,8 +254,8 @@ public class Model {
         }
 
         if (!jobsRepo.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "The jobs repo provided contains stale jobs. Clear them!!");
+            logger.error("The jobs repo provided contains stale jobs. Clear them!!");
+            return false;
         }
 
         LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
@@ -285,7 +285,13 @@ public class Model {
             jobsRepo.put(j.getJobId(), j);
             // batch size always is 1 for describe request job
             if (j.getCmd() == WorkerCommands.DESCRIBE) {
-                return;
+                if (jobsRepo.isEmpty()) {
+                    jobsRepo.put(j.getJobId(), j);
+                    return;
+                } else {
+                    jobsQueue.addFirst(j);
+                    return;
+                }
             }
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {

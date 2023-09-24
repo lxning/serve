@@ -63,7 +63,6 @@ public class ContinuousBatching extends BatchAggregator {
      *     stream response (not include the last stream) is sent
      */
     public boolean sendResponse(ModelWorkerResponse message) {
-        boolean jobDone = true;
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
@@ -95,7 +94,7 @@ public class ContinuousBatching extends BatchAggregator {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (streamNext != null && streamNext.equals("false")) {
+                if (job.isControlCmd() || (streamNext != null && streamNext.equals("false"))) {
                     jobs.remove(jobId);
                 }
             }
@@ -123,14 +122,11 @@ public class ContinuousBatching extends BatchAggregator {
 
     private void pollBatch(String threadName, WorkerState state, int batchSize)
             throws InterruptedException {
-        if (jobs.isEmpty()) {
-            if (!model.pollMgmtJob(
-                    threadName,
-                    (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
-                    jobs)) {
-                model.pollInferJob(jobs, batchSize);
-            }
-        } else {
+        boolean pollMgmtJobStatus = model.pollMgmtJob(
+                threadName,
+                (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+
+        if (!pollMgmtJobStatus && state == WorkerState.WORKER_MODEL_LOADED) {
             model.pollInferJob(jobs, batchSize);
         }
     }
