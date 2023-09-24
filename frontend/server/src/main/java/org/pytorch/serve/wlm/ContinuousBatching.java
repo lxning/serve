@@ -21,7 +21,6 @@ public class ContinuousBatching extends BatchAggregator {
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException {
-        logger.info("call getRequest, jobs empty:{}", jobs.isEmpty());
         int batchQuota = model.getBatchSize() - jobs.size();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
@@ -66,9 +65,15 @@ public class ContinuousBatching extends BatchAggregator {
     public boolean sendResponse(ModelWorkerResponse message) {
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
-            if (jobs.isEmpty()) {
-                // this is from initial load.
-                return true;
+            if (message.getPredictions().isEmpty()) {
+                // The jobs size is always 1 in the case control command
+                for (Map.Entry<String, Job> j : jobs.entrySet()) {
+                    Job job = j.getValue();
+                    if (job.isControlCmd()) {
+                        jobs.clear();
+                        return true;
+                    }
+                }
             }
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
@@ -95,7 +100,7 @@ public class ContinuousBatching extends BatchAggregator {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (job.isControlCmd() || (streamNext != null && streamNext.equals("false"))) {
+                if (streamNext != null && streamNext.equals("false")) {
                     jobs.remove(jobId);
                 }
             }
