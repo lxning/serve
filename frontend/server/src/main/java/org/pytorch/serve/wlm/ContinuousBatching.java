@@ -123,11 +123,12 @@ public class ContinuousBatching extends BatchAggregator {
 
     private void pollBatch(String threadName, WorkerState state, int batchSize)
             throws InterruptedException {
-        if (!model.pollMgmtJob(
+        if (jobs.isEmpty() && model.pollMgmtJob(
                 threadName,
                 (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
                 jobs)) {
-            model.pollInferJob(jobs, batchSize);
+            return;
         }
+        model.pollInferJob(jobs, batchSize);
     }
 }

@@ -93,7 +93,8 @@ class LlamaHandler(BaseHandler, ABC):
                 encoded = self.encode_input_text(data)
                 encoded["past_key_values"] = None
                 self.context.cache[req_id] = {
-                    "stopping_criteria": self._create_stopping_criteria(req_id, max_new_tokens=data["max_new_tokens"]),
+                    #"stopping_criteria": self._create_stopping_criteria(req_id, max_new_tokens=data["max_new_tokens"]),
+                    "stopping_criteria": self._create_stopping_criteria(req_id),
                     "encoded": encoded,
                     "prompt_length": len(encoded["input_ids"]),
                 }
