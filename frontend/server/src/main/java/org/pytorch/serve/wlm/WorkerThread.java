@@ -178,9 +178,11 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
+        aggregator.cleanJobs();
 
         try {
             connect();
+            aggregator.cleanJobs();
 
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
